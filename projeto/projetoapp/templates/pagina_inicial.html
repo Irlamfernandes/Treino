@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Gestão de Campos de Futebol</title>
+</head>
+<body>
+    <h1>Bem-vindo ao Sistema de Gerenciamento de Campos de Futebol</h1>
+
+    <p>Este site permite que você pesquise, reserve e gerencie campos de futebol com facilidade.</p>
+
+    <h2>O que você deseja fazer?</h2>
+    <ul>
+        <li><a href="{% url 'pesquisa_campos' %}">Pesquisar Campos</a></li>
+        {% if campo_id %}
+            <a href="{% url 'reserva_campos' campo_id %}">Reservar</a>
+        {% else %}
+            <p>Campo não disponível para reserva</p>
+        {% endif %}        
+        {% if user.is_authenticated %}
+            <li><a href="{% url 'minhas_reservas' %}">Minhas Reservas</a></li>
+            <li><a href="{% url 'logout' %}">Sair</a></li>
+        {% else %}
+            <li><a href="{% url 'login' %}">Entrar</a></li>
+            <li><a href="{% url 'signup' %}">Cadastrar-se</a></li>
+        {% endif %}
+    </ul>
+
+    <footer>
+        <p>&copy; 2024 Sistema de Gestão de Campos de Futebol</p>
+    </footer>
+</body>
+</html>

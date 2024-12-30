@@ -1,0 +1,7 @@
+<h2>Editar Campo</h2>
+<form method="post">
+    {% csrf_token %}
+    <input type="text" name="nome" value="{{ campo.nome }}" required />
+    <input type="text" name="localizacao" value="{{ campo.localizacao }}" required />
+    <button type="submit">Salvar Alterações</button>
+</form>

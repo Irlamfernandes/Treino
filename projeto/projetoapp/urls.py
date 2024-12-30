@@ -1,7 +1,8 @@
 from django.urls import path
-from projetoapp.views import LoginView, SignupView  # Importa as classes corrigidas
+from projetoapp import views
 
 urlpatterns = [
-    path('', LoginView.as_view(), name='login'),  # Usa LoginView ao invés de login
-    path('signup/', SignupView.as_view(), name='signup'),  # Usa SignupView ao invés de signup
+    path('', views.pesquisa_campos, name='pesquisa_campos'),  # Exibe os campos
+    path('reservar/<int:id>/', views.reservar_campo, name='reservar_campo'),  # Reserva de campo
+    path('gerenciar/', views.gerenciar_campos, name='gerenciar_campos'),  # Gerenciar campos
 ]

@@ -1,0 +1,22 @@
+<h2>Gerenciar Campos</h2>
+<ul>
+    {% for campo in CAMPO_LISTA %}
+        <li>
+            {{ campo.nome }} - {{ campo.localizacao }}
+            {% if campo.disponivel %}
+                (Disponível)
+            {% else %}
+                (Indisponível)
+            {% endif %}
+            <a href="{% url 'editar_campo' campo.id %}">Editar</a>
+            <a href="{% url 'remover_campo' campo.id %}">Remover</a>
+        </li>
+    {% endfor %}
+</ul>
+<h3>Adicionar Novo Campo</h3>
+<form method="post">
+    {% csrf_token %}
+    <input type="text" name="nome" placeholder="Nome do campo" required />
+    <input type="text" name="localizacao" placeholder="Localização" required />
+    <button type="submit">Adicionar Campo</button>
+</form>

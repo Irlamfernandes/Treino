@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Página Inicial</title>
+</head>
+<body>
+    <h1>Campo ID: {{ campo_id }}</h1>
+    <!-- Exibe o ID do campo ou uma mensagem caso não encontre nenhum campo -->
+    {% if campo_id %}
+        <p>Campo encontrado com ID: {{ campo_id }}</p>
+    {% else %}
+        <p>Nenhum campo encontrado.</p>
+    {% endif %}
+</body>
+</html>
