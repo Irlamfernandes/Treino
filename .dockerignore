@@ -20,5 +20,4 @@ docs
 env
 logs
 stats
-Dockerfile
 __localcode/

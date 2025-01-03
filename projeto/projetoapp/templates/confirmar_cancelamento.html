@@ -1,0 +1,17 @@
+{% extends 'base.html' %}
+
+{% block title %}Confirmar Cancelamento{% endblock %}
+
+{% block content %}
+<h2>Confirmar Cancelamento</h2>
+<p>Tem certeza de que deseja cancelar a reserva do campo <strong>{{ campo.nome }}</strong>?</p>
+<p class="alert alert-warning">
+    Atenção: Ao cancelar, você perderá sua reserva.
+</p>
+
+<form method="post">
+    {% csrf_token %}
+    <button type="submit" class="btn btn-danger">Cancelar Reserva</button>
+    <a href="{% url 'index' %}" class="btn btn-secondary">Voltar</a>
+</form>
+{% endblock %}

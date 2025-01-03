@@ -1,17 +1,37 @@
-<!DOCTYPE html>
-<html lang="pt-br">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Página Inicial</title>
-</head>
-<body>
-    <h1>Campo ID: {{ campo_id }}</h1>
-    <!-- Exibe o ID do campo ou uma mensagem caso não encontre nenhum campo -->
-    {% if campo_id %}
-        <p>Campo encontrado com ID: {{ campo_id }}</p>
-    {% else %}
-        <p>Nenhum campo encontrado.</p>
-    {% endif %}
-</body>
-</html>
+{% extends 'base.html' %}
+
+{% block title %}Página Inicial{% endblock %}
+
+{% block content %}
+
+<h2>Filtrar Campos</h2>
+<div class="mb-3">
+    <a href="{% url 'index' %}?filtro=todos" class="btn btn-outline-primary">Todos</a>
+    <a href="{% url 'index' %}?filtro=disponiveis" class="btn btn-outline-success">Disponíveis</a>
+    <a href="{% url 'index' %}?filtro=indisponiveis" class="btn btn-outline-danger">Indisponíveis</a>
+</div>
+
+<h2>Campos Disponíveis</h2>
+<ul class="list-group">
+    {% for campo in campos %}
+        <li class="list-group-item d-flex justify-content-between align-items-center">
+            <span>
+                <strong>{{ campo.nome }}</strong> - {{ campo.descricao }}
+                {% if not campo.disponivel %}
+                    <br><small>Reservado para: {{ campo.data_reserva|date:"d/m/Y H:i" }}</small>
+                {% endif %}
+            </span>
+            <span>
+                {% if campo.disponivel %}
+                    <a href="{% url 'reservar' campo.id %}" class="btn btn-primary btn-sm">Reservar</a>
+                {% else %}
+                    <span class="text-danger">Indisponível</span>
+                    <a href="{% url 'confirmar_cancelamento' campo.id %}" class="btn btn-warning btn-sm">Cancelar Reserva</a>
+                {% endif %}
+            </span>
+        </li>
+    {% endfor %}
+</ul>
+
+
+{% endblock %}

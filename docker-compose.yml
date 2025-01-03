@@ -6,19 +6,26 @@ services:
     build:
       context: .
     ports:
-      - 8000:8000
+      - "8000:8000"
     volumes:
       - ./projeto:/projeto
       - ./data/web/static:/data/web/static/
       - ./data/web/media:/data/web/media/
     env_file:
-      - ./dotenv_files/.env
+      - ./dotenv_files/.env  # Carregando o arquivo .env
     depends_on:
       - psql
+
   psql:
     container_name: psql
     image: postgres:13-alpine
     volumes:
       - ./data/postgres/data:/var/lib/postgresql/data/
+    ports:
+      - "5432:5432"  # Expondo a porta do PostgreSQL
     env_file:
-      - ./dotenv_files/.env
+      - ./dotenv_files/.env  # Certificando-se de que o PostgreSQL usa o .env
+    environment:
+      POSTGRES_USER: nome_projeto
+      POSTGRES_PASSWORD: senha_projeto
+      POSTGRES_DB: bd_projeto

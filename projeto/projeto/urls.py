@@ -3,5 +3,5 @@ from django.urls import path, include
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('', include('projetoapp.urls')),  # Direciona para as URLs do app campos
+    path('', include('projetoapp.urls')),  # Inclui as rotas do app projetoapp
 ]

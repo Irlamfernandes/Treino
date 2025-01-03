@@ -1,5 +1,5 @@
 FROM python:3.11.3-alpine3.18
-LABEL maintainer="lanzinhofernandes@gmail.com"
+LABEL mantainer="luizomf@gmail.com"
 
 # Essa variável de ambiente é usada para controlar se o Python deve 
 # gravar arquivos de bytecode (.pyc) no disco. 1 = Não, 0 = Sim
@@ -47,4 +47,4 @@ ENV PATH="/scripts:/venv/bin:$PATH"
 USER duser
 
 # Executa o arquivo scripts/commands.sh
-CMD ["sh", "/scripts/commands.sh"]
+CMD ["commands.sh"]
