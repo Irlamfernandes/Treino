@@ -1,0 +1,21 @@
+{% extends 'base.html' %}
+
+{% block title %}Perfil do Usuário{% endblock %}
+
+{% block content %}
+<h2>Perfil de {{ perfil.user.username }}</h2>
+<p><strong>Email:</strong> {{ perfil.user.email }}</p>
+<p><strong>Telefone:</strong> {{ perfil.telefone }}</p>
+<p><strong>Cidade:</strong> {{ perfil.cidade }}</p>
+
+<h3>Histórico de Reservas</h3>
+<ul class="list-group">
+    {% for campo in campos_reservados %}
+        <li class="list-group-item">
+            <strong>{{ campo.nome }}</strong> - Reservado para: {{ campo.data_reserva|date:"d/m/Y" }}
+        </li>
+    {% endfor %}
+</ul>
+
+<a href="{% url 'editar_perfil' %}" class="btn btn-info mt-3">Editar Perfil</a>
+{% endblock %}

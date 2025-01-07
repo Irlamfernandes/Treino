@@ -9,7 +9,7 @@
     Atenção: Ao cancelar, você perderá sua reserva.
 </p>
 
-<form method="post">
+<form method="post" action="{% url 'cancelar_reserva' campo.id %}">
     {% csrf_token %}
     <button type="submit" class="btn btn-danger">Cancelar Reserva</button>
     <a href="{% url 'index' %}" class="btn btn-secondary">Voltar</a>

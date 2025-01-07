@@ -5,33 +5,56 @@
 {% block content %}
 
 <h2>Filtrar Campos</h2>
-<div class="mb-3">
-    <a href="{% url 'index' %}?filtro=todos" class="btn btn-outline-primary">Todos</a>
-    <a href="{% url 'index' %}?filtro=disponiveis" class="btn btn-outline-success">Disponíveis</a>
-    <a href="{% url 'index' %}?filtro=indisponiveis" class="btn btn-outline-danger">Indisponíveis</a>
-</div>
+<form method="get" class="mb-4">
+    <div class="row">
+        <div class="col-md-3">
+            <input type="text" name="cidade" placeholder="Cidade" value="{{ request.GET.cidade }}" class="form-control mb-2">
+        </div>
+        <div class="col-md-3">
+            <select name="tipo_gramado" class="form-control mb-2">
+                <option value="">Todos os Gramados</option>
+                <option value="sintetico" {% if request.GET.tipo_gramado == 'sintetico' %}selected{% endif %}>Sintético</option>
+                <option value="natural" {% if request.GET.tipo_gramado == 'natural' %}selected{% endif %}>Natural</option>
+            </select>
+        </div>
+        <div class="col-md-2">
+            <label><input type="checkbox" name="iluminacao" value="true" {% if request.GET.iluminacao == 'true' %}checked{% endif %}> Iluminação</label>
+        </div>
+        <div class="col-md-2">
+            <button type="submit" class="btn btn-primary">Filtrar</button>
+        </div>
+    </div>
+</form>
 
 <h2>Campos Disponíveis</h2>
 <ul class="list-group">
     {% for campo in campos %}
-        <li class="list-group-item d-flex justify-content-between align-items-center">
-            <span>
-                <strong>{{ campo.nome }}</strong> - {{ campo.descricao }}
-                {% if not campo.disponivel %}
-                    <br><small>Reservado para: {{ campo.data_reserva|date:"d/m/Y H:i" }}</small>
-                {% endif %}
-            </span>
-            <span>
-                {% if campo.disponivel %}
-                    <a href="{% url 'reservar' campo.id %}" class="btn btn-primary btn-sm">Reservar</a>
-                {% else %}
-                    <span class="text-danger">Indisponível</span>
-                    <a href="{% url 'confirmar_cancelamento' campo.id %}" class="btn btn-warning btn-sm">Cancelar Reserva</a>
-                {% endif %}
-            </span>
-        </li>
-    {% endfor %}
+    <li class="list-group-item d-flex justify-content-between align-items-center">
+        <span>
+            <strong>{{ campo.nome }}</strong> - {{ campo.descricao }}
+            <p><strong>Valor:</strong> R$ {{ campo.preco_por_hora }}</p>
+            <p><strong>Capacidade:</strong> {{ campo.capacidade }} pessoas</p>
+            {% if not campo.disponivel %}
+                <br><small>Reservado para: {{ campo.data_reserva|date:"d/m/Y H:i" }}</small>
+            {% endif %}
+            <br><small>Cidade: {{ campo.cidade }}</small>
+            <br><small>Tipo de Gramado: {{ campo.get_tipo_gramado_display }}</small>
+            <br><small>Iluminação: {{ campo.iluminacao|yesno:"Sim,Não" }}</small>
+        </span>
+        <span>
+            {% if campo.disponivel %}
+                <a href="{% url 'reservar' campo.id %}" class="btn btn-primary btn-sm">Reservar/Detalhes</a>
+            {% else %}
+                <span class="text-danger">Indisponível</span>
+                <a href="{% url 'confirmar_cancelamento' campo.id %}" class="btn btn-warning btn-sm">Cancelar Reserva</a>
+            {% endif %}
+            {% if request.user.is_superuser %}
+                <a href="{% url 'editar_campo' campo.id %}" class="btn btn-info btn-sm">Editar</a>
+                <a href="{% url 'excluir_campo' campo.id %}" class="btn btn-danger btn-sm">Excluir</a>
+            {% endif %}
+        </span>
+    </li>
+{% endfor %}
 </ul>
-
 
 {% endblock %}

@@ -1,0 +1,9 @@
+{% extends 'base.html' %}
+
+{% block title %}Cancelamento Confirmado{% endblock %}
+
+{% block content %}
+<h2>Reserva Cancelada</h2>
+<p>A reserva do campo <strong>{{ campo.nome }}</strong> foi cancelada com sucesso.</p>
+<a href="{% url 'index' %}" class="btn btn-primary">Voltar à página inicial</a>
+{% endblock %}

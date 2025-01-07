@@ -1,5 +1,5 @@
 from django import forms
-from .models import Campo
+from .models import Campo, Perfil
 
 class ReservaCampoForm(forms.ModelForm):
     class Meta:
@@ -12,3 +12,8 @@ class ReservaCampoForm(forms.ModelForm):
             'localizacao': 'Localização',
             'capacidade': 'Capacidade',
         }
+
+class EditarPerfilForm(forms.ModelForm):
+    class Meta:
+        model = Perfil
+        fields = ['telefone', 'cidade']
