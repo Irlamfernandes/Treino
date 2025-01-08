@@ -1,11 +1,14 @@
 from django.shortcuts import render, get_object_or_404, redirect
-from .models import Campo
-from .forms import ReservaCampoForm
+from .models import Campo, Reserva, Perfil
+from .forms import ReservaCampoForm, EditarPerfilForm
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from django.contrib.auth import login
 import logging
+from django.http import HttpResponse
+from datetime import timedelta, datetime
+from decimal import Decimal
 
 logger = logging.getLogger(__name__)
 
@@ -28,35 +31,134 @@ def is_admin(user):
     return user.is_superuser
 
 @login_required(login_url='/login/')
-def reservar(request, campo_id):
-    logger.info(f"Acessou a função de reserva para o campo ID: {campo_id}")
-    
+def detalhes_campo(request, campo_id):
     campo = get_object_or_404(Campo, id=campo_id)
-    
-    if not campo.disponivel:
-        logger.warning(f"Campo '{campo.nome}' não disponível para reserva.")
-        messages.error(request, "Este campo já está reservado.")
-        return redirect('index')
-    
+
+    # Verifica se o formulário foi enviado para a confirmação
     if request.method == 'POST':
-        campo.disponivel = False
-        campo.data_reserva = request.POST.get('data_reserva')
-        campo.save()
-        logger.info(f"Campo '{campo.nome}' reservado com sucesso para {campo.data_reserva}.")
-        messages.success(request, f"O campo '{campo.nome}' foi reservado com sucesso para {campo.data_reserva}.")
-        return redirect('detalhes_reserva', campo_id=campo.id)
+        data_inicio = request.POST.get('data_inicio')
+        data_fim = request.POST.get('data_fim')
 
-    return render(request, 'reservar.html', {'campo': campo})
+        # Se os dados de data não forem fornecidos, exibe erro
+        if not data_inicio or not data_fim:
+            messages.error(request, "Data de início e fim são obrigatórios.")
+            return render(request, 'detalhes_campo.html', {'campo': campo})
 
-@login_required
-def detalhes_reserva(request, campo_id):
+        # Converte as datas de string para datetime
+        try:
+            data_inicio = datetime.strptime(data_inicio, "%Y-%m-%dT%H:%M")
+            data_fim = datetime.strptime(data_fim, "%Y-%m-%dT%H:%M")
+            
+            # Verifica se já existe uma reserva no mesmo campo, nas mesmas datas
+            if Reserva.objects.filter(campo=campo, data_inicio__lte=data_fim, data_fim__gte=data_inicio).exists():
+                messages.error(request, "Este campo já está reservado para esse horário. Tente outro horário.")
+                return render(request, 'detalhes_campo.html', {'campo': campo, 'data_inicio': data_inicio, 'data_fim': data_fim})
+
+            # Converte as datas para string no formato adequado
+            data_inicio_str = data_inicio.strftime("%Y-%m-%dT%H:%M")
+            data_fim_str = data_fim.strftime("%Y-%m-%dT%H:%M")
+
+            # Se não houver conflito, redireciona para a página de confirmação da reserva
+            return redirect('confirmar_reserva', campo_id=campo.id, inicio=data_inicio_str, fim=data_fim_str)
+
+        except ValueError:
+            messages.error(request, "Erro ao processar as datas.")
+            return render(request, 'detalhes_campo.html', {'campo': campo})
+
+    # Se não for POST, apenas renderiza a página do campo
+    return render(request, 'detalhes_campo.html', {'campo': campo})
+
+@login_required(login_url='/login/')
+def confirmar_reserva(request, campo_id, inicio, fim):
+    # Converte as strings de data para objetos datetime
+    try:
+        data_inicio = datetime.strptime(inicio, "%Y-%m-%dT%H:%M")
+        data_fim = datetime.strptime(fim, "%Y-%m-%dT%H:%M")
+    except ValueError:
+        # Se as datas não forem válidas, redireciona ou exibe erro
+        messages.error(request, "Formato de data inválido.")
+        return redirect('home')
+
+    # Recupera o campo e cria uma nova reserva com os dados fornecidos
     campo = get_object_or_404(Campo, id=campo_id)
-    return render(request, 'detalhes_reserva.html', {'campo': campo})
+
+    # Calcula a duração e o valor total
+    duracao = (data_fim - data_inicio).total_seconds() / 3600  # Duração em horas
+    valor_total = campo.preco_por_hora * Decimal(duracao)
+
+    if request.method == "POST":
+        # Aqui você pega a forma de pagamento escolhida
+        pagamento = request.POST.get('pagamento')
+
+        # Cria a reserva
+        reserva = Reserva.objects.create(
+            campo=campo,
+            usuario=request.user,
+            data_inicio=data_inicio,
+            data_fim=data_fim,
+            valor_total=valor_total,
+            pagamento=pagamento
+        )
+        
+        # Após a confirmação, você pode redirecionar para uma página de sucesso ou exibir uma mensagem
+        messages.success(request, f"Reserva confirmada! Valor total: R$ {round(valor_total, 2)}.")
+        return redirect('index')  # Ou redirecionar para uma página de detalhes da reserva
+    
+    # Caso não seja um POST, apenas exibe a página de confirmação
+    return render(request, 'confirmar_reserva.html', {
+        'campo': campo,
+        'data_inicio': data_inicio,
+        'data_fim': data_fim,
+        'duracao': round(duracao, 2),  # Arredonda para 2 casas decimais
+        'valor_total': round(valor_total, 2)
+    })
 
 @login_required
 def historico_reservas(request):
-    campos_reservados = Campo.objects.filter(disponivel=False)
-    return render(request, 'historico_reservas.html', {'campos_reservados': campos_reservados})
+    reservas = Reserva.objects.filter(usuario=request.user).order_by('-data_inicio')
+    return render(request, 'historico_reservas.html', {'reservas': reservas})
+
+@login_required
+def detalhes_reserva(request, reserva_id):
+    reserva = get_object_or_404(Reserva, id=reserva_id)
+    return render(request, 'detalhes_reserva.html', {'reserva': reserva})
+
+@login_required
+def editar_reserva(request, reserva_id):
+    reserva = get_object_or_404(Reserva, id=reserva_id)
+
+    if request.method == 'POST':
+        # Atualiza as datas de início e fim
+        data_inicio = request.POST.get('data_inicio')
+        data_fim = request.POST.get('data_fim')
+        pagamento = request.POST.get('pagamento')
+
+        # Se os dados de data ou pagamento não forem fornecidos, exibe erro
+        if not data_inicio or not data_fim or not pagamento:
+            messages.error(request, "Data de início, data de fim e forma de pagamento são obrigatórios.")
+            return render(request, 'editar_reserva.html', {'reserva': reserva})
+
+        try:
+            # Converte as datas de string para datetime
+            data_inicio = datetime.strptime(data_inicio, "%Y-%m-%dT%H:%M")
+            data_fim = datetime.strptime(data_fim, "%Y-%m-%dT%H:%M")
+
+            # Verifica se já existe uma reserva no mesmo campo, nas mesmas datas
+            if Reserva.objects.filter(campo=reserva.campo, data_inicio__lte=data_fim, data_fim__gte=data_inicio).exclude(id=reserva.id).exists():
+                messages.error(request, "Este campo já está reservado para esse horário. Tente outro horário.")
+                return render(request, 'editar_reserva.html', {'reserva': reserva})
+
+            reserva.data_inicio = data_inicio
+            reserva.data_fim = data_fim
+            reserva.pagamento = pagamento  # Atualiza a forma de pagamento
+            reserva.save()
+
+            messages.success(request, "Reserva editada com sucesso!")
+            return redirect('detalhes_reserva', reserva_id=reserva.id)
+        except ValueError:
+            messages.error(request, "Erro ao processar as datas.")
+        
+    return render(request, 'editar_reserva.html', {'reserva': reserva})
 
 @login_required
 def confirmar_cancelamento(request, campo_id):
@@ -64,21 +166,15 @@ def confirmar_cancelamento(request, campo_id):
     return render(request, 'confirmar_cancelamento.html', {'campo': campo})
 
 @login_required
-def cancelar_reserva(request, campo_id):
-    campo = get_object_or_404(Campo, id=campo_id)
-    
-    if campo.disponivel:
-        messages.error(request, f"O campo '{campo.nome}' não está reservado para cancelamento.")
-        return redirect('index')
-    
-    if request.method == "POST":
-        campo.disponivel = True
-        campo.data_reserva = None
-        campo.save()
-        messages.info(request, f"A reserva do campo '{campo.nome}' foi cancelada com sucesso.")
-        return redirect('cancelamento_confirmado', campo_id=campo.id)
-    
-    return render(request, 'confirmar_cancelamento.html', {'campo': campo})
+def cancelar_reserva(request, reserva_id):
+    reserva = get_object_or_404(Reserva, id=reserva_id)
+
+    if request.method == 'POST':
+        reserva.delete()
+        messages.success(request, "Reserva cancelada com sucesso!")
+        return redirect('historico_reservas')
+
+    return render(request, 'confirmar_cancelamento.html', {'reserva': reserva})
 
 @login_required
 def cancelamento_confirmado(request, campo_id):
@@ -115,12 +211,11 @@ def perfil(request):
 
 @login_required
 def editar_perfil(request):
-    perfil = request.user.perfil
+    perfil = Perfil.objects.get(user=request.user)
     if request.method == 'POST':
-        form = EditarPerfilForm(request.POST, instance=perfil)
+        form = EditarPerfilForm(request.POST, request.FILES, instance=perfil)
         if form.is_valid():
             form.save()
-            messages.success(request, 'Seu perfil foi atualizado com sucesso.')
             return redirect('perfil')
     else:
         form = EditarPerfilForm(instance=perfil)

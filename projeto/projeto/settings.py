@@ -58,6 +58,10 @@ MIDDLEWARE = [
 
 LOGIN_URL = '/login/'  # URL nomeada para a view de login
 
+LOGIN_REDIRECT_URL = '/perfil/'  # Ou o caminho correto para a página de perfil
+
+LOGOUT_REDIRECT_URL = 'index'
+
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
@@ -81,6 +85,24 @@ LOGGING = {
     },
 }
 
+ROOT_URLCONF = 'projeto.urls'
+
+TEMPLATES = [
+    {
+        'BACKEND': 'django.template.backends.django.DjangoTemplates',
+        'DIRS': [],
+        'APP_DIRS': True,
+        'OPTIONS': {
+            'context_processors': [
+                'django.template.context_processors.debug',
+                'django.template.context_processors.request',
+                'django.contrib.auth.context_processors.auth',
+                'django.contrib.messages.context_processors.messages',
+            ],
+        },
+    },
+]
+
 DATABASES = {
     'default': dj_database_url.config(
         default=os.getenv('DATABASE_URL', '')
@@ -91,6 +113,18 @@ AUTHENTICATION_BACKENDS = [
     'axes.backends.AxesStandaloneBackend',
     'django.contrib.auth.backends.ModelBackend',
 ]
+
+# Static files (CSS, JavaScript, Images)
+# https://docs.djangoproject.com/en/4.2/howto/static-files/
+
+STATIC_URL = '/static/'
+# /data/web/static
+STATIC_ROOT = DATA_DIR / 'static'
+
+MEDIA_URL = '/media/'
+# /data/web/media
+MEDIA_ROOT = DATA_DIR / 'media'
+
 
 AXES_ENABLED = True
 AXES_FAILURE_LIMIT = 30

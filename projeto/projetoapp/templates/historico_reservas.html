@@ -5,11 +5,20 @@
 {% block content %}
 <h2>Histórico de Reservas</h2>
 <ul class="list-group">
-    {% for campo in campos_reservados %}
-        <li class="list-group-item">
-            <strong>{{ campo.nome }}</strong> - Reservado para: {{ campo.data_reserva|date:"d/m/Y" }}
-            <a href="{% url 'detalhes_reserva' campo.id %}" class="btn btn-info btn-sm">Detalhes</a>
-        </li>
+    {% for reserva in reservas %}
+    <li>
+        Campo: {{ reserva.campo.nome }} - 
+        Início: {{ reserva.data_inicio }} - 
+        Fim: {{ reserva.data_fim }} - 
+        Valor: R$ {{ reserva.valor_total }}
+            <a href="{% url 'detalhes_reserva' reserva.id %}" class="btn btn-info btn-sm">Detalhes</a>
+            
+    {% empty %}
+        <li>Você não possui reservas.</li>
     {% endfor %}
 </ul>
+
+<!-- Botão para voltar para a página de perfil -->
+<a href="{% url 'perfil' %}" class="btn btn-secondary mt-3">Voltar para o Perfil</a>
+
 {% endblock %}

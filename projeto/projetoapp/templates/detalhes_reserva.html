@@ -4,13 +4,15 @@
 
 {% block content %}
 <h2>Detalhes da Reserva</h2>
-<p>Campo: <strong>{{ campo.nome }}</strong></p>
-<p>Descrição: {{ campo.descricao }}</p>
-<p>Cidade: {{ campo.cidade }}</p>
-<p>Tipo de Gramado: {{ campo.get_tipo_gramado_display }}</p>
-<p>Iluminação: {{ campo.iluminacao|yesno:"Sim,Não" }}</p>
-<p>Data da Reserva: {{ campo.data_reserva|date:"d/m/Y" }}</p>
-<p>Preço por Hora: R$ {{ campo.preco_por_hora }}</p>
+<p><strong>Campo:</strong> {{ reserva.campo.nome }}</p>
+<p><strong>Data Início:</strong> {{ reserva.data_inicio }}</p>
+<p><strong>Data Fim:</strong> {{ reserva.data_fim }}</p>
+<p><strong>Valor Total:</strong> R$ {{ reserva.valor_total }}</p>
+<p><strong>Status do Pagamento:</strong> {{ reserva.pagamento }}</p>
 
-<a href="{% url 'index' %}" class="btn btn-secondary">Voltar</a>
+<!-- Botões para editar e cancelar a reserva -->
+<a href="{% url 'editar_reserva' reserva.id %}" class="btn btn-warning">Editar Reserva</a>
+<a href="{% url 'cancelar_reserva' reserva.id %}" class="btn btn-danger">Cancelar Reserva</a>
+
+<a href="{% url 'historico_reservas' %}" class="btn btn-secondary mt-3">Voltar para o Histórico de Reservas</a>
 {% endblock %}

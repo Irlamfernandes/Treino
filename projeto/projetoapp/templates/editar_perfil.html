@@ -5,7 +5,7 @@
 {% block content %}
 <h2>Editar Perfil</h2>
 
-<form method="post">
+<form method="post" enctype="multipart/form-data">  <!-- Adicionando enctype para envio de arquivos -->
     {% csrf_token %}
     {{ form.as_p }}
     <button type="submit" class="btn btn-success">Salvar Alterações</button>

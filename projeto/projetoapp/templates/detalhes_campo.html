@@ -1,0 +1,29 @@
+<!-- detalhes_campo.html -->
+{% extends 'base.html' %}
+
+{% block title %}Detalhes do Campo{% endblock %}
+
+{% block content %}
+<h2>{{ campo.nome }}</h2>
+<p><strong>Descrição:</strong> {{ campo.descricao }}</p>
+<p><strong>Preço por Hora:</strong> R$ {{ campo.preco_por_hora }}</p>
+<p><strong>Capacidade:</strong> {{ campo.capacidade }} pessoas</p>
+<p><strong>Cidade:</strong> {{ campo.cidade }}</p>
+<p><strong>Tipo de Gramado:</strong> {{ campo.get_tipo_gramado_display }}</p>
+<p><strong>Iluminação:</strong> {{ campo.iluminacao|yesno:"Sim,Não" }}</p>
+
+<h3>Reservar Este Campo</h3>
+<form method="POST">
+  {% csrf_token %}
+  
+  <label for="data_inicio">Data de Início:</label>
+  <input type="datetime-local" name="data_inicio" id="data_inicio" required>
+  
+  <label for="data_fim">Data de Fim:</label>
+  <input type="datetime-local" name="data_fim" id="data_fim" required>
+
+  <button type="submit" class="btn btn-primary">Verificar Disponibilidade</button>
+</form>
+
+<a href="{% url 'index' %}" class="btn btn-secondary">Voltar</a>
+{% endblock %}
