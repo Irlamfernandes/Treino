@@ -1,5 +1,7 @@
 {
+    // Configuração do Emmet para o Django no Visual Studio Code
     "emmet.includeLanguages": {
+        // Associa o "django-html" (temas/templates do Django) com a linguagem HTML
         "django-html": "html"
     }
 }

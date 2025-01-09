@@ -3,31 +3,28 @@ import sys
 from pathlib import Path
 
 from dotenv import load_dotenv
-
 import dj_database_url
 
-# Build paths inside the project like this: BASE_DIR / 'subdir'.
+# Caminhos base dentro do projeto, facilitando o uso de subdiretórios
 BASE_DIR = Path(__file__).resolve().parent.parent
 DATA_DIR = BASE_DIR.parent / 'data' / 'web'
 
-# DOTENV
+# Carregar variáveis de ambiente do arquivo .env
 load_dotenv(BASE_DIR.parent / 'dotenv_files' / '.env', override=True)
 
-# Quick-start development settings - unsuitable for production
-# See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
-
-# SECURITY WARNING: keep the secret key used in production secret!
+# Chave secreta do Django, importante manter em segredo em produção
 SECRET_KEY = os.getenv('SECRET_KEY')
 
-# SECURITY WARNING: don't run with debug turned on in production!
+# Controle do modo de depuração (não utilizar em produção)
 DEBUG = bool(int(os.getenv('DEBUG', 0)))
 
+# Hosts permitidos para acessar a aplicação
 ALLOWED_HOSTS = [
     h.strip() for h in os.getenv('ALLOWED_HOSTS', '').split(',') 
     if h.strip()
 ]
 
-# Application definition
+# Definição das aplicações instaladas
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
@@ -36,13 +33,14 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
 
-    # Meu apps
+    # Aplicativo do projeto
     'projetoapp',
 
-    # Axes app can be in any position in the INSTALLED_APPS list.
+    # Aplicativo Axes para segurança
     'axes',
 ]
 
+# Middleware para manipulação de requisições e segurança
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
@@ -52,16 +50,16 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 
-    # AxesMiddleware should be the last middleware in the MIDDLEWARE list.
+    # Middleware do Axes (deve ser o último da lista)
     'axes.middleware.AxesMiddleware',
 ]
 
-LOGIN_URL = '/login/'  # URL nomeada para a view de login
-
-LOGIN_REDIRECT_URL = '/perfil/'  # Ou o caminho correto para a página de perfil
-
+# URLs de login e redirecionamento
+LOGIN_URL = '/login/'
+LOGIN_REDIRECT_URL = '/perfil/'
 LOGOUT_REDIRECT_URL = 'index'
 
+# Configurações de logging para monitoramento e debugging
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
@@ -77,7 +75,7 @@ LOGGING = {
             'level': 'INFO',
             'propagate': True,
         },
-        'projetoapp': {  # Substitua 'myapp' pelo nome do seu aplicativo
+        'projetoapp': {  # Substitua 'projetoapp' pelo nome correto do seu app
             'handlers': ['console'],
             'level': 'INFO',
             'propagate': True,
@@ -85,8 +83,10 @@ LOGGING = {
     },
 }
 
+# Configuração das URLs principais do projeto
 ROOT_URLCONF = 'projeto.urls'
 
+# Configurações de templates para renderização de páginas
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
@@ -103,33 +103,32 @@ TEMPLATES = [
     },
 ]
 
+# Configurações do banco de dados, utilizando URL de conexão do .env
 DATABASES = {
     'default': dj_database_url.config(
         default=os.getenv('DATABASE_URL', '')
     )
 }
 
+# Backends de autenticação
 AUTHENTICATION_BACKENDS = [
     'axes.backends.AxesStandaloneBackend',
     'django.contrib.auth.backends.ModelBackend',
 ]
 
-# Static files (CSS, JavaScript, Images)
-# https://docs.djangoproject.com/en/4.2/howto/static-files/
-
+# Configurações de arquivos estáticos e de mídia
 STATIC_URL = '/static/'
-# /data/web/static
 STATIC_ROOT = DATA_DIR / 'static'
 
 MEDIA_URL = '/media/'
-# /data/web/media
 MEDIA_ROOT = DATA_DIR / 'media'
 
-
+# Configurações do Axes para controle de acessos
 AXES_ENABLED = True
 AXES_FAILURE_LIMIT = 30
 AXES_COOLOFF_TIME = 0.1  # 1 Hora
 AXES_RESET_ON_SUCCESS = True
 
+# Desativa o Axes durante testes
 if 'test' in sys.argv:
     AXES_ENABLED = False

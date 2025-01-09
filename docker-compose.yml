@@ -1,31 +1,33 @@
 version: '3.9'
 
 services:
+  # Serviço do projeto Django
   projeto:
-    container_name: projeto
+    container_name: projeto  # Nome do container do Django
     build:
-      context: .
+      context: .  # Diretório de contexto para construir a imagem do projeto
     ports:
-      - "8000:8000"
+      - "8000:8000"  # Mapeando a porta 8000 do container para a porta 8000 do host (acesso ao Django)
     volumes:
-      - ./projeto:/projeto
-      - ./data/web/static:/data/web/static/
-      - ./data/web/media:/data/web/media/
+      - ./projeto:/projeto  # Volume para sincronizar os arquivos do projeto entre o host e o container
+      - ./data/web/static:/data/web/static/  # Volume para os arquivos estáticos do Django
+      - ./data/web/media:/data/web/media/  # Volume para os arquivos de mídia do Django
     env_file:
-      - ./dotenv_files/.env  # Carregando o arquivo .env
+      - ./dotenv_files/.env  # Carregando variáveis de ambiente do arquivo .env
     depends_on:
-      - psql
+      - psql  # Dependência do serviço PostgreSQL, o Django precisa do banco de dados
 
+  # Serviço do banco de dados PostgreSQL
   psql:
-    container_name: psql
-    image: postgres:13-alpine
+    container_name: psql  # Nome do container do PostgreSQL
+    image: postgres:13-alpine  # Imagem do PostgreSQL com base na versão 13-alpine
     volumes:
-      - ./data/postgres/data:/var/lib/postgresql/data/
+      - ./data/postgres/data:/var/lib/postgresql/data/  # Volume para persistência dos dados do banco de dados
     ports:
-      - "5432:5432"  # Expondo a porta do PostgreSQL
+      - "5432:5432"  # Expondo a porta padrão do PostgreSQL (5432)
     env_file:
-      - ./dotenv_files/.env  # Certificando-se de que o PostgreSQL usa o .env
+      - ./dotenv_files/.env  # Certificando-se de que o PostgreSQL usa o arquivo .env
     environment:
-      POSTGRES_USER: nome_projeto
-      POSTGRES_PASSWORD: senha_projeto
-      POSTGRES_DB: bd_projeto
+      POSTGRES_USER: nome_projeto  # Nome do usuário do banco de dados
+      POSTGRES_PASSWORD: senha_projeto  # Senha do banco de dados
+      POSTGRES_DB: bd_projeto  # Nome do banco de dados
