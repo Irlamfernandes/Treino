@@ -1,73 +1,63 @@
 {% extends 'base.html' %}
-
 {% block title %}Página Inicial{% endblock %}
-
 {% block content %}
-    <!-- Opção de login ou perfil -->
-    <div class="d-flex justify-content-between mb-4">
-        {% if user.is_authenticated %}
-            <div>
-                <a href="{% url 'perfil' %}" class="btn btn-secondary">Meu Perfil</a>
-                <a href="{% url 'logout' %}" class="btn btn-danger">Logout</a>
-            </div>
-        {% else %}
-            <div>
-                <a href="{% url 'login' %}" class="btn btn-primary">Login</a>
-            </div>
-        {% endif %}
-    </div>
-
     <h2>Filtrar Campos</h2>
     <form method="get" class="mb-4">
         <div class="row">
-            <div class="col-md-3">
-                <input type="text" name="cidade" placeholder="Cidade" value="{{ request.GET.cidade }}" class="form-control mb-2">
+            <div class="col-md-3 mb-2">
+                <input type="text" name="cidade" placeholder="Cidade" value="{{ request.GET.cidade }}" class="form-control">
             </div>
-            <div class="col-md-3">
-                <select name="tipo_gramado" class="form-control mb-2">
+            <div class="col-md-3 mb-2">
+                <select name="tipo_gramado" class="form-control">
                     <option value="">Todos os Gramados</option>
                     <option value="sintetico" {% if request.GET.tipo_gramado == 'sintetico' %}selected{% endif %}>Sintético</option>
                     <option value="natural" {% if request.GET.tipo_gramado == 'natural' %}selected{% endif %}>Natural</option>
                 </select>
             </div>
-            <div class="col-md-2">
-                <label><input type="checkbox" name="iluminacao" value="true" {% if request.GET.iluminacao == 'true' %}checked{% endif %}> Iluminação</label>
+            <div class="col-md-2 mb-2 d-flex align-items-center">
+                <div class="form-check">
+                    <input type="checkbox" name="iluminacao" value="true" {% if request.GET.iluminacao == 'true' %}checked{% endif %} class="form-check-input">
+                    <label class="form-check-label" for="iluminacao">Iluminação</label>
+                </div>
             </div>
-            <div class="col-md-2">
+            <div class="col-md-2 mb-2">
                 <button type="submit" class="btn btn-primary">Filtrar</button>
             </div>
         </div>
     </form>
 
     <h2>Campos Disponíveis</h2>
-    <ul class="list-group">
-        {% for campo in campos %}
-        <li class="list-group-item d-flex justify-content-between align-items-center">
-            <span>
-                <strong>{{ campo.nome }}</strong> - {{ campo.descricao }}
-                <p><strong>Valor:</strong> R$ {{ campo.preco_por_hora }}</p>
-                <p><strong>Capacidade:</strong> {{ campo.capacidade }} pessoas</p>
-                {% if not campo.disponivel %}
-                    <br><small>Reservado para: {{ campo.data_reserva|date:"d/m/Y H:i" }}</small>
-                {% endif %}
-                <br><small>Cidade: {{ campo.cidade }}</small>
-                <br><small>Tipo de Gramado: {{ campo.get_tipo_gramado_display }}</small>
-                <br><small>Iluminação: {{ campo.iluminacao|yesno:"Sim,Não" }}</small>
-            </span>
-            <span>
-                {% if campo.disponivel %}
-                    <a href="{% url 'detalhes_campo' campo.id %}" class="btn btn-primary btn-sm">Detalhes do Campo</a>
-                {% else %}
-                    <span class="text-danger">Indisponível</span>
-                    <a href="{% url 'confirmar_cancelamento' campo.id %}" class="btn btn-warning btn-sm">Cancelar Reserva</a>
-                {% endif %}
-                {% if user.is_authenticated and user.is_superuser %}
-                    <a href="{% url 'editar_campo' campo.id %}" class="btn btn-info btn-sm">Editar</a>
-                    <a href="{% url 'excluir_campo' campo.id %}" class="btn btn-danger btn-sm">Excluir</a>
-                {% endif %}
-            </span>
-        </li>
-        {% endfor %}
-    </ul>
-
+    {% if campos %}
+        <div class="row">
+            {% for campo in campos %}
+            <div class="col-md-4 mb-4">
+                <div class="card h-100">
+                    <div class="card-body d-flex flex-column">
+                        <h5 class="card-title">{{ campo.nome }}</h5>
+                        <p class="card-text">{{ campo.descricao }}</p>
+                        <p class="card-text"><strong>Valor:</strong> R$ {{ campo.preco_por_hora }}</p>
+                        <p class="card-text"><strong>Capacidade:</strong> {{ campo.capacidade }} pessoas</p>
+                        <p class="card-text"><strong>Cidade:</strong> {{ campo.cidade }}</p>
+                        <p class="card-text"><strong>Tipo de Gramado:</strong> {{ campo.get_tipo_gramado_display }}</p>
+                        <p class="card-text"><strong>Iluminação:</strong> {{ campo.iluminacao|yesno:"Sim,Não" }}</p>
+                        {% if not campo.disponivel %}
+                            <p class="card-text text-danger">Indisponível</p>
+                        {% endif %}
+                        <div class="mt-auto">
+                            {% if campo.disponivel %}
+                                <a href="{% url 'detalhes_campo' campo.id %}" class="btn btn-primary btn-sm">Detalhes do Campo</a>
+                            {% endif %}
+                            {% if user.is_authenticated and user.is_superuser %}
+                                <a href="{% url 'editar_campo' campo.id %}" class="btn btn-info btn-sm">Editar</a>
+                                <a href="{% url 'excluir_campo' campo.id %}" class="btn btn-danger btn-sm">Excluir</a>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <p>Nenhum campo encontrado.</p>
+    {% endif %}
 {% endblock %}

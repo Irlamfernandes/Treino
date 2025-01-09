@@ -1,24 +1,34 @@
 {% extends 'base.html' %}
-
 {% block title %}Histórico de Reservas{% endblock %}
-
 {% block content %}
 <h2>Histórico de Reservas</h2>
-<ul class="list-group">
-    {% for reserva in reservas %}
-    <li>
-        Campo: {{ reserva.campo.nome }} - 
-        Início: {{ reserva.data_inicio }} - 
-        Fim: {{ reserva.data_fim }} - 
-        Valor: R$ {{ reserva.valor_total }}
-            <a href="{% url 'detalhes_reserva' reserva.id %}" class="btn btn-info btn-sm">Detalhes</a>
-            
-    {% empty %}
-        <li>Você não possui reservas.</li>
-    {% endfor %}
-</ul>
-
-<!-- Botão para voltar para a página de perfil -->
+{% if reservas %}
+<div class="table-responsive">
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Campo</th>
+                <th>Início</th>
+                <th>Fim</th>
+                <th>Valor</th>
+                <th>Ações</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for reserva in reservas %}
+            <tr>
+                <td>{{ reserva.campo.nome }}</td>
+                <td>{{ reserva.data_inicio }}</td>
+                <td>{{ reserva.data_fim }}</td>
+                <td>R$ {{ reserva.valor_total }}</td>
+                <td><a href="{% url 'detalhes_reserva' reserva.id %}" class="btn btn-info btn-sm">Detalhes</a></td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% else %}
+    <p>Você não possui reservas.</p>
+{% endif %}
 <a href="{% url 'perfil' %}" class="btn btn-secondary mt-3">Voltar para o Perfil</a>
-
 {% endblock %}

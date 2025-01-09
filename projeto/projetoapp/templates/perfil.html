@@ -3,16 +3,21 @@
 {% block title %}Perfil do Usuário{% endblock %}
 
 {% block content %}
-<h2>Perfil de {{ perfil.user.username }}</h2>
-<p><strong>Nome de Usuário:</strong> {{ perfil.user.username }}</p>
-<p><strong>Email:</strong> {{ perfil.email }}</p>
-<p><strong>Telefone:</strong> {{ perfil.telefone }}</p>
+<div class="card">
+    <div class="card-body">
+        <h2 class="card-title">Perfil de {{ perfil.user.username }}</h2>
+        {% if perfil.foto %}
+            <div class="text-center mb-3">
+                <img src="{{ perfil.foto.url }}" alt="Foto de Perfil" class="img-thumbnail rounded-circle" width="150">
+            </div>
+        {% endif %}
+        <p class="card-text"><strong>Nome de Usuário:</strong> {{ perfil.user.username }}</p>
+        <p class="card-text"><strong>Email:</strong> {{ perfil.email }}</p>
+        <p class="card-text"><strong>Telefone:</strong> {{ perfil.telefone }}</p>
 
-{% if perfil.foto %}
-    <img src="{{ perfil.foto.url }}" alt="Foto de Perfil" width="100">
-{% endif %}
-
-<a href="{% url 'editar_perfil' %}" class="btn btn-info mt-3">Editar Perfil</a>
-<a href="{% url 'historico_reservas' %}" class="btn btn-primary mt-3">Ver Histórico de Reservas</a>
-<a href="{% url 'index' %}" class="btn btn-secondary mt-3">Voltar para a Tela Inicial</a>
+        <a href="{% url 'editar_perfil' %}" class="btn btn-info mt-3">Editar Perfil</a>
+        <a href="{% url 'historico_reservas' %}" class="btn btn-primary mt-3">Ver Histórico de Reservas</a>
+        <a href="{% url 'index' %}" class="btn btn-secondary mt-3">Voltar para a Tela Inicial</a>
+    </div>
+</div>
 {% endblock %}

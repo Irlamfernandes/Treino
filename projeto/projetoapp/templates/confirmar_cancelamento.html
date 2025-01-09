@@ -1,13 +1,15 @@
 {% extends 'base.html' %}
-
 {% block title %}Confirmar Cancelamento{% endblock %}
-
 {% block content %}
-<h2>Confirmar Cancelamento da Reserva</h2>
-<p>Tem certeza que deseja cancelar a reserva para o campo {{ reserva.campo.nome }}?</p>
-<form method="POST">
-    {% csrf_token %}
-    <button type="submit" class="btn btn-danger">Cancelar Reserva</button>
-    <a href="{% url 'detalhes_reserva' reserva.id %}" class="btn btn-secondary">Voltar</a>
-</form>
+<div class="card">
+    <div class="card-body">
+        <h5 class="card-title">Confirmar Cancelamento da Reserva</h5>
+        <p class="card-text">Tem certeza que deseja cancelar a reserva para o campo {{ reserva.campo.nome }}?</p>
+        <form method="POST">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-danger">Cancelar Reserva</button>
+            <a href="{% url 'detalhes_reserva' reserva.id %}" class="btn btn-secondary">Voltar</a>
+        </form>
+    </div>
+</div>
 {% endblock %}

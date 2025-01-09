@@ -1,15 +1,28 @@
 {% extends 'base.html' %}
-
 {% block title %}Editar Perfil{% endblock %}
-
 {% block content %}
-<h2>Editar Perfil</h2>
-
-<form method="post" enctype="multipart/form-data">  <!-- Adicionando enctype para envio de arquivos -->
-    {% csrf_token %}
-    {{ form.as_p }}
-    <button type="submit" class="btn btn-success">Salvar Alterações</button>
-</form>
-
-<a href="{% url 'perfil' %}" class="btn btn-secondary mt-3">Cancelar</a>
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <h2>Editar Perfil</h2>
+        <form method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            {% for field in form %}
+                <div class="mb-3">
+                    <label for="{{ field.id_for_label }}" class="form-label">{{ field.label }}</label>
+                    {{ field }}
+                    {% if field.errors %}
+                        <div class="invalid-feedback">
+                            {{ field.errors }}
+                        </div>
+                    {% endif %}
+                    {% if field.help_text %}
+                        <small class="form-text text-muted">{{ field.help_text }}</small>
+                    {% endif %}
+                </div>
+            {% endfor %}
+            <button type="submit" class="btn btn-success">Salvar Alterações</button>
+        </form>
+        <a href="{% url 'perfil' %}" class="btn btn-secondary mt-3">Cancelar</a>
+    </div>
+</div>
 {% endblock %}

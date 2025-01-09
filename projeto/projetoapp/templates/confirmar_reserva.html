@@ -1,33 +1,33 @@
-<!-- confirmar_reserva.html -->
 {% extends 'base.html' %}
 
 {% block content %}
-  <h2>Confirme sua Reserva</h2>
+<div class="card">
+    <div class="card-body">
+        <h2 class="card-title">Confirme sua Reserva</h2>
 
-  <form method="POST">
-    {% csrf_token %}
-    
-    <p><strong>Nome do usuário:</strong> {{ user.username }}</p>
-    <p><strong>Nome do campo:</strong> {{ campo.nome }}</p>
-    <p><strong>Data de Início:</strong> {{ data_inicio }}</p>
-    <p><strong>Data de Fim:</strong> {{ data_fim }}</p>
-    <p><strong>Duração:</strong> {{ duracao }} horas</p>
-    <p><strong>Valor Total:</strong> R$ {{ valor_total }}</p>
+        <p class="card-text"><strong>Nome do usuário:</strong> {{ user.username }}</p>
+        <p class="card-text"><strong>Nome do campo:</strong> {{ campo.nome }}</p>
+        <p class="card-text"><strong>Data de Início:</strong> {{ data_inicio }}</p>
+        <p class="card-text"><strong>Data de Fim:</strong> {{ data_fim }}</p>
+        <p class="card-text"><strong>Duração:</strong> {{ duracao }} horas</p>
+        <p class="card-text"><strong>Valor Total:</strong> R$ {{ valor_total }}</p>
 
-    <h4>Escolha a forma de pagamento:</h4>
-    <select name="pagamento" class="form-control">
-        <option value="cartao">Cartão de Crédito</option>
-        <option value="debito">Cartão de Débito</option> <!-- Novo: Cartão de Débito -->
-        <option value="boleto">Boleto Bancário</option>
-        <option value="pix">PIX</option> <!-- Novo: PIX -->
-    </select>
+        <form method="POST">
+            {% csrf_token %}
+            <div class="mb-3">
+                <label for="pagamento" class="form-label">Escolha a forma de pagamento:</label>
+                <select name="pagamento" class="form-control" id="pagamento">
+                    <option value="cartao">Cartão de Crédito</option>
+                    <option value="debito">Cartão de Débito</option>
+                    <option value="boleto">Boleto Bancário</option>
+                    <option value="pix">PIX</option>
+                </select>
+            </div>
 
-    <!-- Botão para confirmar reserva -->
-    <button type="submit" class="btn btn-success">Confirmar Reserva</button>
-  </form>
+            <button type="submit" class="btn btn-success">Confirmar Reserva</button>
+            <a href="{% url 'detalhes_campo' campo_id=campo.id %}" class="btn btn-primary mt-3">Voltar</a>
 
-  <br>
-
-  <!-- Botão para voltar -->
-  <a href="{% url 'detalhes_campo' campo_id=campo.id %}" class="btn btn-primary">Voltar</a>
+        </form>
+    </div>
+</div>
 {% endblock %}

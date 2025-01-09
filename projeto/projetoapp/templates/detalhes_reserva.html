@@ -1,18 +1,18 @@
 {% extends 'base.html' %}
-
 {% block title %}Detalhes da Reserva{% endblock %}
-
 {% block content %}
-<h2>Detalhes da Reserva</h2>
-<p><strong>Campo:</strong> {{ reserva.campo.nome }}</p>
-<p><strong>Data Início:</strong> {{ reserva.data_inicio }}</p>
-<p><strong>Data Fim:</strong> {{ reserva.data_fim }}</p>
-<p><strong>Valor Total:</strong> R$ {{ reserva.valor_total }}</p>
-<p><strong>Status do Pagamento:</strong> {{ reserva.pagamento }}</p>
+<div class="card">
+    <div class="card-body">
+        <h2 class="card-title">Detalhes da Reserva</h2>
+        <p class="card-text"><strong>Campo:</strong> {{ reserva.campo.nome }}</p>
+        <p class="card-text"><strong>Data Início:</strong> {{ reserva.data_inicio }}</p>
+        <p class="card-text"><strong>Data Fim:</strong> {{ reserva.data_fim }}</p>
+        <p class="card-text"><strong>Valor Total:</strong> R$ {{ reserva.valor_total }}</p>
+        <p class="card-text"><strong>Status do Pagamento:</strong> {{ reserva.pagamento }}</p>
 
-<!-- Botões para editar e cancelar a reserva -->
-<a href="{% url 'editar_reserva' reserva.id %}" class="btn btn-warning">Editar Reserva</a>
-<a href="{% url 'cancelar_reserva' reserva.id %}" class="btn btn-danger">Cancelar Reserva</a>
-
-<a href="{% url 'historico_reservas' %}" class="btn btn-secondary mt-3">Voltar para o Histórico de Reservas</a>
+        <a href="{% url 'editar_reserva' reserva.id %}" class="btn btn-warning mt-3">Editar Reserva</a>
+        <a href="{% url 'cancelar_reserva' reserva.id %}" class="btn btn-danger mt-3">Cancelar Reserva</a>
+        <a href="{% url 'historico_reservas' %}" class="btn btn-secondary mt-3">Voltar para o Histórico de Reservas</a>
+    </div>
+</div>
 {% endblock %}
