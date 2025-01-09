@@ -118,7 +118,12 @@ AUTHENTICATION_BACKENDS = [
 
 # Configurações de arquivos estáticos e de mídia
 STATIC_URL = '/static/'
+STATICFILES_DIRS = [
+    BASE_DIR / 'projetoapp' / 'static',  # Corrigido para o diretório correto do app 'projetoapp'
+]
 STATIC_ROOT = DATA_DIR / 'static'
+# Outras configurações...
+
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = DATA_DIR / 'media'

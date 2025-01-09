@@ -5,6 +5,7 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from django.contrib.auth import login
+from django.db.models import Q
 import logging
 from django.http import HttpResponse
 from datetime import timedelta, datetime
@@ -17,18 +18,21 @@ logger = logging.getLogger(__name__)
 def index(request):
     campos = Campo.objects.all()
     
-    # Filtros para a busca de campos
-    filtro_cidade = request.GET.get('cidade', '')
-    filtro_gramado = request.GET.get('tipo_gramado', '')
-    filtro_iluminacao = request.GET.get('iluminacao', '')
-
-    if filtro_cidade:
-        campos = campos.filter(cidade__icontains=filtro_cidade)
-    if filtro_gramado:
-        campos = campos.filter(tipo_gramado=filtro_gramado)
-    if filtro_iluminacao:
-        campos = campos.filter(iluminacao=(filtro_iluminacao == 'true'))
-
+    # Filtrar por cidade
+    cidade = request.GET.get('cidade')
+    if cidade:
+        campos = campos.filter(cidade__icontains=cidade)
+    
+    # Filtrar por tipo de gramado
+    tipo_gramado = request.GET.get('tipo_gramado')
+    if tipo_gramado:
+        campos = campos.filter(tipo_gramado=tipo_gramado)
+    
+    # Filtrar por iluminação
+    iluminacao = request.GET.get('iluminacao')
+    if iluminacao == 'true':
+        campos = campos.filter(iluminacao=True)
+    
     return render(request, 'index.html', {'campos': campos})
 
 # Função para verificar se o usuário é administrador
@@ -81,13 +85,28 @@ def confirmar_reserva(request, campo_id, inicio, fim):
         return redirect('home')
 
     campo = get_object_or_404(Campo, id=campo_id)
+    
+    # Validação: data_inicio não pode ser no passado
+    if data_inicio < datetime.now():
+        messages.error(request, "A data de início não pode ser no passado.")
+        return render(request, 'detalhes_campo.html', {'campo': campo})
 
-    # Cálculo da duração e valor total da reserva
-    duracao = (data_fim - data_inicio).total_seconds() / 3600  # Duração em horas
-    valor_total = campo.preco_por_hora * Decimal(duracao)
+    # Validação: data_inicio deve ser anterior à data_fim
+    if data_inicio >= data_fim:
+        messages.error(request, "A data de início deve ser anterior à data de fim.")
+        return render(request, 'detalhes_campo.html', {'campo': campo})
+
+    # Cálculo do valor utilizando o método do modelo
+    valor_total = campo.calcular_valor_total(data_inicio, data_fim)
+    
+    duracao = data_fim - data_inicio
+    horas = duracao.seconds // 3600  # horas
+    minutos = (duracao.seconds // 60) % 60  # minutos
+
+    duracao_formatada = f"Duração: {horas:02} horas e {minutos:02} minutos" 
 
     if request.method == "POST":
-        pagamento = request.POST.get('pagamento')
+        pagamento = request.POST.get('pagamento')  # Captura o pagamento selecionado
 
         # Criação da reserva
         reserva = Reserva.objects.create(
@@ -96,10 +115,10 @@ def confirmar_reserva(request, campo_id, inicio, fim):
             data_inicio=data_inicio,
             data_fim=data_fim,
             valor_total=valor_total,
-            pagamento=pagamento
+            pagamento=pagamento  # Armazena o método de pagamento
         )
         
-        # Mensagem de sucesso e redirecionamento
+        # Mensagem de sucesso
         messages.success(request, f"Reserva confirmada! Valor total: R$ {round(valor_total, 2)}.")
         return redirect('index')  # Redireciona para a página inicial
     
@@ -107,8 +126,8 @@ def confirmar_reserva(request, campo_id, inicio, fim):
         'campo': campo,
         'data_inicio': data_inicio,
         'data_fim': data_fim,
-        'duracao': round(duracao, 2),
-        'valor_total': round(valor_total, 2)
+        'valor_total': round(valor_total, 2),
+        'duracao_formatada': duracao_formatada,  # Adicionando a duração formatada
     })
 
 # Histórico de reservas do usuário
@@ -166,14 +185,10 @@ def confirmar_cancelamento(request, campo_id):
 # Cancelamento de reserva
 @login_required
 def cancelar_reserva(request, reserva_id):
-    reserva = get_object_or_404(Reserva, id=reserva_id)
-
-    if request.method == 'POST':
-        reserva.delete()
-        messages.success(request, "Reserva cancelada com sucesso!")
-        return redirect('historico_reservas')
-
-    return render(request, 'confirmar_cancelamento.html', {'reserva': reserva})
+    reserva = get_object_or_404(Reserva, id=reserva_id)    
+    reserva.delete()
+    messages.success(request, "Reserva cancelada com sucesso.")
+    return redirect('historico_reservas')
 
 # Confirmação de cancelamento com sucesso
 @login_required
@@ -199,11 +214,15 @@ def editar_campo(request, campo_id):
 @user_passes_test(is_admin)
 def excluir_campo(request, campo_id):
     campo = get_object_or_404(Campo, id=campo_id)
-    if request.method == 'POST':
-        campo.delete()
-        messages.success(request, f"O campo '{campo.nome}' foi excluído com sucesso.")
+    
+    # Verifica se há reservas associadas ao campo
+    if Reserva.objects.filter(campo=campo).exists():
+        messages.error(request, "Este campo não pode ser excluído porque possui reservas.")
         return redirect('index')
-    return render(request, 'confirmar_exclusao.html', {'campo': campo})
+    
+    campo.delete()
+    messages.success(request, "Campo excluído com sucesso.")
+    return redirect('index')
 
 # Função de visualização do perfil do usuário
 @login_required

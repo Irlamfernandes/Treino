@@ -1,0 +1,33 @@
+.messages {
+    margin-top: 20px; /* Espaçamento entre as mensagens e o conteúdo */
+}
+
+.alert {
+    font-size: 18px; /* Aumenta o tamanho da fonte */
+    font-weight: bold; /* Torna o texto mais destacado */
+    padding: 15px;
+}
+
+.alert-success {
+    background-color: #28a745; /* Verde */
+    color: white;
+    border: 1px solid #28a745;
+}
+
+.alert-error {
+    background-color: #dc3545; /* Vermelho */
+    color: white;
+    border: 1px solid #dc3545;
+}
+
+.alert-info {
+    background-color: #17a2b8; /* Azul */
+    color: white;
+    border: 1px solid #17a2b8;
+}
+
+.alert-warning {
+    background-color: #ffc107; /* Amarelo */
+    color: black;
+    border: 1px solid #ffc107;
+}

@@ -23,15 +23,14 @@ class Campo(models.Model):
     def __str__(self):
         return self.nome  # Representação do campo como string
 
-    class Meta:
-        unique_together = ('nome', 'cidade')  # Garantia de unicidade para nome e cidade
-
     def calcular_valor_total(self, data_inicio, data_fim):
-        # Calcula o valor total da reserva com base no tempo de uso
-        delta = data_fim - data_inicio
-        horas_reserva = delta.total_seconds() / 3600  # Converte a diferença para horas
-        valor_total = Decimal(horas_reserva) * self.preco_por_hora
-        return valor_total
+        duracao = (data_fim - data_inicio).total_seconds() / 3600  # Duração em horas
+        return self.preco_por_hora * Decimal(duracao)
+    
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(fields=['nome', 'cidade'], name='unique_nome_cidade')
+        ]
 
 # Modelo representando o perfil de um usuário
 class Perfil(models.Model):
